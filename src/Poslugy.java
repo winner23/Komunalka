@@ -35,7 +35,6 @@ public class Poslugy extends JDialog {
 	
 	public Poslugy() {
 		
-		//setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		JPanel contentPanel = new JPanel();
 		setTitle("Послуги");
 		setResizable(false);
@@ -44,10 +43,9 @@ public class Poslugy extends JDialog {
 		contentPanel.setBorder(new EmptyBorder(5, 5, 5, 5));
 		getContentPane().add(contentPanel, BorderLayout.CENTER);
 		
+		//Collection data of Services
 		ResultSet data = getPoslugy();
 		TableModel tm = DbUtils.resultSetToTableModel(data);
-		
-		
 		
 		table = new JTable();
 		table.setAutoCreateRowSorter(true);
@@ -62,6 +60,7 @@ public class Poslugy extends JDialog {
 		table.getColumnModel().getColumn(0).setPreferredWidth(30);
 		table.getColumnModel().getColumn(1).setPreferredWidth(130);
 		table.getColumnModel().getColumn(2).setPreferredWidth(90);
+		table.getColumnModel().getColumn(4).setPreferredWidth(30);
 		
 		table.setVisible(true);
 		contentPanel.setLayout(new FlowLayout(FlowLayout.CENTER, 5, 5));
@@ -80,7 +79,7 @@ public class Poslugy extends JDialog {
 				okButton.addMouseListener(new MouseAdapter() {
 					@Override
 					public void mouseClicked(MouseEvent me){
-						try {
+						try {//Add New Service window
 							AddPoslug framen = new AddPoslug();
 							framen.setVisible(true);
 							
@@ -98,8 +97,14 @@ public class Poslugy extends JDialog {
 				cancelButton.addMouseListener(new MouseAdapter() {
 					@Override
 					public void mouseClicked(MouseEvent me){
+						//Remove some service with ID,
 						//Get ID from table even if the table was sorted.
-						String iDs = table.getValueAt(table.getSelectedRow(), 0).toString();
+						int row = table.getSelectedRow();
+						if(row<0){
+							JOptionPane.showMessageDialog(null,"Виберіть рядок для видалення");
+							return;
+						}
+						String iDs = table.getValueAt(row, 0).toString();
 						int iD = Integer.parseInt(iDs);
 						remPosl(iD);
 					}
@@ -144,9 +149,6 @@ public class Poslugy extends JDialog {
 		
 		return 0;
 	}
-	private int addPosl(Integer iD, String name, String account, Double price){
-		
-		return 0;
-	}
+	
 	
 }

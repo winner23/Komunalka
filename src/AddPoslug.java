@@ -1,13 +1,20 @@
 import javax.swing.JPanel;
 import javax.swing.border.EmptyBorder;
+import javax.swing.text.NumberFormatter;
 import javax.swing.text.SimpleAttributeSet;
 import javax.swing.BoxLayout;
 import javax.swing.border.BevelBorder;
 import javax.swing.JLabel;
+import javax.swing.JOptionPane;
 import javax.swing.JTextPane;
 import java.awt.ComponentOrientation;
 import javax.swing.UIManager;
 import java.awt.FlowLayout;
+import java.awt.event.MouseAdapter;
+import java.awt.event.MouseEvent;
+import java.sql.Connection;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
 import java.text.NumberFormat;
 import java.text.SimpleDateFormat;
 import java.util.Locale;
@@ -28,6 +35,7 @@ public class AddPoslug extends JDialog {
 	private JTextField textField;
 	private JTextField textField_1;
 	private JFormattedTextField textField_2;
+	Connection connection;
 
 	public AddPoslug() {
 		setResizable(false);
@@ -80,10 +88,16 @@ public class AddPoslug extends JDialog {
 		JLabel lblNewLabel_2 = new JLabel("Ціна:");
 		panel_2.add(lblNewLabel_2);
 		
-		NumberFormat format = NumberFormat.getCurrencyInstance(Locale.UK);
-		format.setMaximumFractionDigits(0);
-
-		textField_2 = new JFormattedTextField(format);
+		NumberFormat format = NumberFormat.getCurrencyInstance();
+		format.setMaximumFractionDigits(3);
+		
+		NumberFormatter formatter = new NumberFormatter(format);
+		
+		formatter.setAllowsInvalid(false);
+		//formatter.setOverwriteMode(true);
+		textField_2 = new JFormattedTextField(formatter);
+		textField_2.setValue(0.0);
+		
 		panel_2.add(textField_2);
 		textField_2.setColumns(10);
 		
@@ -103,5 +117,28 @@ public class AddPoslug extends JDialog {
 		btnNewButton.setIcon(new ImageIcon(AddPoslug.class.getResource("/com/sun/javafx/scene/control/skin/modena/HTMLEditor-Outdent-Black-rtl.png")));
 		panel_3.add(btnNewButton);
 		setFocusTraversalPolicy(new FocusTraversalOnArray(new Component[]{textField, textField_1, textField_2, comboBox, btnNewButton}));
+		btnNewButton.addMouseListener(new MouseAdapter() {
+			@Override
+			public void mouseClicked(MouseEvent me){
+				
+				setPoslugy();
+			}
+		});
+	}
+	private ResultSet setPoslugy(){
+		connection = SQLiteConnection.dbConnector();
+		//String name = 
+		try{
+			String query = "SELECT * FROM services";
+			PreparedStatement pst = connection.prepareStatement(query);
+			ResultSet rs = pst.executeQuery();
+			return rs;
+			
+		}catch(Exception e){
+			JOptionPane.showMessageDialog(null, e);
+			return null;
+		}
+		
+		
 	}
 }
