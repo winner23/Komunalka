@@ -1,11 +1,15 @@
 import java.awt.BorderLayout;
 import java.awt.FlowLayout;
 import java.awt.Font;
+import java.awt.Point;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
+import java.util.ArrayList;
+import java.util.List;
+
 import javax.swing.JButton;
 import javax.swing.JDialog;
 import javax.swing.JFrame;
@@ -18,6 +22,8 @@ import net.proteanit.sql.DbUtils;
 import java.awt.Color;
 import javax.swing.border.BevelBorder;
 import javax.swing.table.DefaultTableModel;
+import javax.swing.table.TableColumn;
+import javax.swing.table.TableColumnModel;
 import javax.swing.ListSelectionModel;
 import javax.swing.ImageIcon;
 import javax.swing.JScrollPane;
@@ -26,6 +32,8 @@ import java.awt.Dimension;
 import org.eclipse.wb.swing.FocusTraversalOnArray;
 import java.awt.Component;
 import java.awt.Dialog.ModalExclusionType;
+import java.awt.event.WindowAdapter;
+import java.awt.event.WindowEvent;
 
 public class Poslugy extends JDialog { 
 	private JTable table;
@@ -34,6 +42,13 @@ public class Poslugy extends JDialog {
 	private JButton cancelButton;
 	
 	public Poslugy() {
+		addWindowListener(new WindowAdapter() {
+			@Override
+			public void windowActivated(WindowEvent arg0) {
+				updateTable();
+				
+			}
+		});
 		
 		JPanel contentPanel = new JPanel();
 		setTitle("Послуги");
@@ -52,17 +67,36 @@ public class Poslugy extends JDialog {
 		table.setModel(tm);
 		table.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
 		
-		table.setAutoResizeMode(JTable.AUTO_RESIZE_ALL_COLUMNS);
+		//table.setAutoResizeMode(JTable.AUTO_RESIZE_ALL_COLUMNS);
 		table.setBorder(new BevelBorder(BevelBorder.LOWERED, Color.BLACK, Color.DARK_GRAY, Color.LIGHT_GRAY, null));
 		table.setFont(new Font("SansSerif", Font.PLAIN, 14));
 		table.setShowVerticalLines(true);
 		table.setShowHorizontalLines(true);
-		table.getColumnModel().getColumn(0).setPreferredWidth(30);
+		table.getColumnModel().getColumn(0).setPreferredWidth(20);
 		table.getColumnModel().getColumn(1).setPreferredWidth(130);
 		table.getColumnModel().getColumn(2).setPreferredWidth(90);
-		table.getColumnModel().getColumn(4).setPreferredWidth(30);
+		table.getColumnModel().getColumn(3).setPreferredWidth(90);
+		table.getColumnModel().getColumn(4).setPreferredWidth(20);
 		
 		table.setVisible(true);
+		table.addMouseListener(new MouseAdapter() {
+		    public void mousePressed(MouseEvent me) {
+		        JTable table =(JTable) me.getSource();
+		        Point p = me.getPoint();
+		        int row = table.rowAtPoint(p);
+		        if (me.getClickCount() == 2) {
+		        	try {
+		        		Integer id = (Integer)table.getValueAt(row, 0);
+						AddPoslug framen = new AddPoslug(id);
+						framen.setVisible(true);
+						
+					} catch (Exception e) {
+						e.printStackTrace();
+					} 
+		             
+		        }
+		    }
+		});
 		contentPanel.setLayout(new FlowLayout(FlowLayout.CENTER, 5, 5));
 		JScrollPane scrollPane = new JScrollPane(table);
 		scrollPane.setPreferredSize(new Dimension(440, 180));
@@ -107,6 +141,8 @@ public class Poslugy extends JDialog {
 						String iDs = table.getValueAt(row, 0).toString();
 						int iD = Integer.parseInt(iDs);
 						remPosl(iD);
+						updateTable();
+						
 					}
 				});
 				buttonPane.add(cancelButton);
@@ -115,6 +151,22 @@ public class Poslugy extends JDialog {
 		
 	}
 	
+	private void updateTable(){
+		ResultSet data = getPoslugy();
+		TableModel tm = table.getModel();
+		List<Integer> columns = new ArrayList<Integer>();
+		int cols = tm.getColumnCount();
+		for(int i=0 ; i<cols ; i++){
+			
+			columns.add(table.getColumnModel().getColumn(i).getPreferredWidth());
+		}
+		tm = DbUtils.resultSetToTableModel(data);
+		
+		table.setModel(tm);
+		for(int i=0 ; i<cols ; i++){
+			table.getColumnModel().getColumn(i).setPreferredWidth(columns.get(i));
+		}
+	}
 	private ResultSet getPoslugy(){
 		connection = SQLiteConnection.dbConnector();
 		
@@ -141,7 +193,7 @@ public class Poslugy extends JDialog {
 		try{
 			String query = "DELETE FROM services WHERE ID="+iD.toString();
 			PreparedStatement pst = connection.prepareStatement(query);
-			ResultSet rs = pst.executeQuery();
+			pst.executeUpdate();
 		}catch (Exception e) {
 			JOptionPane.showMessageDialog(null, e);
 			return -1;

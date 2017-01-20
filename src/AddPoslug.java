@@ -15,6 +15,7 @@ import java.awt.event.MouseEvent;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
+import java.sql.SQLException;
 import java.text.NumberFormat;
 import java.text.SimpleDateFormat;
 import java.util.Locale;
@@ -35,14 +36,32 @@ public class AddPoslug extends JDialog {
 	private JTextField textField;
 	private JTextField textField_1;
 	private JFormattedTextField textField_2;
-	Connection connection;
+	private Connection connection;
+	private JComboBox comboBox;
+	private boolean edit;
 
 	public AddPoslug() {
-		setResizable(false);
+		init();
+		edit = false;
+		}
+	public AddPoslug(int id){
+		init();
+		edit = true;
+		try {
+			getPosluga(id);
+		} catch (SQLException e) {
+			// TODO Auto-generated catch block
+			JOptionPane.showMessageDialog(null, e);
+		}
+	}
+	
+	
+	private void init(){
+setResizable(false);
 		
 		setModal(true);
 		setTitle("Нова Послуга");
-		//setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+		
 		setBounds(100, 100, 805, 244);
 		contentPane = new JPanel();
 		contentPane.setBorder(new EmptyBorder(5, 5, 5, 5));
@@ -89,14 +108,14 @@ public class AddPoslug extends JDialog {
 		panel_2.add(lblNewLabel_2);
 		
 		NumberFormat format = NumberFormat.getCurrencyInstance();
-		format.setMaximumFractionDigits(3);
+		format.setMaximumFractionDigits(5);
 		
 		NumberFormatter formatter = new NumberFormatter(format);
 		
 		formatter.setAllowsInvalid(false);
 		//formatter.setOverwriteMode(true);
 		textField_2 = new JFormattedTextField(formatter);
-		textField_2.setValue(0.0);
+		textField_2.setValue(0.0001);
 		
 		panel_2.add(textField_2);
 		textField_2.setColumns(10);
@@ -104,7 +123,7 @@ public class AddPoslug extends JDialog {
 		JLabel lblNewLabel_3 = new JLabel("Тип:");
 		panel_2.add(lblNewLabel_3);
 		
-		JComboBox comboBox = new JComboBox();
+		comboBox = new JComboBox();
 		comboBox.setModel(new DefaultComboBoxModel(new String[] {"1 - лічильник", "2 - фіксовано"}));
 		panel_2.add(comboBox);
 		
@@ -121,24 +140,83 @@ public class AddPoslug extends JDialog {
 			@Override
 			public void mouseClicked(MouseEvent me){
 				
-				setPoslugy();
+				try {
+					setPosluga();
+				} catch (SQLException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				}
+				setVisible(false);
 			}
 		});
+	
 	}
-	private ResultSet setPoslugy(){
+private void getPosluga(Integer id) throws SQLException{
+	connection = SQLiteConnection.dbConnector();
+	try{
+		String query = "select * from services where id="+id.toString()+";";
+		PreparedStatement pst = connection.prepareStatement(query);
+		ResultSet rs = pst.executeQuery();
+		while(rs.next()){
+			textField.setText(rs.getString(2));
+			textField_1.setText(rs.getString(3));
+			textField_2.setValue(rs.getDouble(4));
+		}
+	}catch (Exception e) {
+		JOptionPane.showMessageDialog(null, e);
+	}
+}
+	private void setPosluga() throws SQLException{
 		connection = SQLiteConnection.dbConnector();
-		//String name = 
+		String name = textField.getText();
+		String acc = textField_1.getText();
+		String price = textField_2.getText();
+		int idx = price.indexOf(' ');
+		price = price.substring(0, idx);
+		price = price.replace(",", ".");
+		String type = (String)comboBox.getSelectedItem();
+		switch(type.charAt(0)){
+		case '1':{
+			type = "1";
+			break;
+		}
+		case '2':{
+			type = "2";
+			break;
+		}
+		default:{ 
+			type = "1";
+		}
+		}
+		Integer id = 0;
+		PreparedStatement pst=null;
 		try{
-			String query = "SELECT * FROM services";
-			PreparedStatement pst = connection.prepareStatement(query);
+			String query = "select max(id) from services;";
+			pst = connection.prepareStatement(query);
 			ResultSet rs = pst.executeQuery();
-			return rs;
+			String rest = rs.getString(1);
+			int maxID = Integer.parseInt(rest);
+			id = ++maxID;
+				
 			
 		}catch(Exception e){
 			JOptionPane.showMessageDialog(null, e);
-			return null;
+		}finally{
+			if(pst != null) {
+			    pst.close();}
 		}
-		
+		try{
+			String query = "INSERT INTO services VALUES ("+id.toString()+", '"+name+"', '"+acc+"', "+price+", "+type+");";
+			pst = connection.prepareStatement(query);
+			pst.executeUpdate();
+		}catch(Exception e){
+			JOptionPane.showMessageDialog(null, e);
+			
+		}finally{
+			if(pst != null) {
+			    pst.close();
+			}
+		}
 		
 	}
 }
