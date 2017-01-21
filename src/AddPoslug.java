@@ -39,29 +39,35 @@ public class AddPoslug extends JDialog {
 	private Connection connection;
 	private JComboBox comboBox;
 	private boolean edit;
+	private int SID;
+	{SID = -1;}
 
 	public AddPoslug() {
-		init();
+		SID  = -1;
 		edit = false;
+		init();
+		setTitle("Нова Послуга");
+		
 		}
 	public AddPoslug(int id){
-		init();
+		super();
+		SID = id;
 		edit = true;
+		init();
+		
 		try {
 			getPosluga(id);
 		} catch (SQLException e) {
 			// TODO Auto-generated catch block
 			JOptionPane.showMessageDialog(null, e);
 		}
+		setTitle("Послуга ");
 	}
 	
 	
 	private void init(){
-setResizable(false);
-		
-		setModal(true);
-		setTitle("Нова Послуга");
-		
+		setResizable(false);
+		setModal(true);		
 		setBounds(100, 100, 805, 244);
 		contentPane = new JPanel();
 		contentPane.setBorder(new EmptyBorder(5, 5, 5, 5));
@@ -132,7 +138,13 @@ setResizable(false);
 		flowLayout.setAlignment(FlowLayout.RIGHT);
 		panel_1.add(panel_3);
 		
-		JButton btnNewButton = new JButton("Додати");
+		JButton btnNewButton = new JButton();
+		if(edit){
+			btnNewButton.setText("Змінити");
+		}else{
+			btnNewButton.setText("Додати");
+		}
+		
 		btnNewButton.setIcon(new ImageIcon(AddPoslug.class.getResource("/com/sun/javafx/scene/control/skin/modena/HTMLEditor-Outdent-Black-rtl.png")));
 		panel_3.add(btnNewButton);
 		setFocusTraversalPolicy(new FocusTraversalOnArray(new Component[]{textField, textField_1, textField_2, comboBox, btnNewButton}));
@@ -143,8 +155,7 @@ setResizable(false);
 				try {
 					setPosluga();
 				} catch (SQLException e) {
-					// TODO Auto-generated catch block
-					e.printStackTrace();
+					JOptionPane.showMessageDialog(null, e);
 				}
 				setVisible(false);
 			}
@@ -161,6 +172,20 @@ private void getPosluga(Integer id) throws SQLException{
 			textField.setText(rs.getString(2));
 			textField_1.setText(rs.getString(3));
 			textField_2.setValue(rs.getDouble(4));
+			switch (rs.getInt(5)){
+			case 1:{
+				comboBox.setSelectedItem(1);
+				break;
+			}
+			case 2:{
+				comboBox.setSelectedItem(2);
+				break;
+			}
+			default:{
+				comboBox.setSelectedItem(1);
+				break;
+			}
+			}
 		}
 	}catch (Exception e) {
 		JOptionPane.showMessageDialog(null, e);
@@ -188,25 +213,37 @@ private void getPosluga(Integer id) throws SQLException{
 			type = "1";
 		}
 		}
-		Integer id = 0;
+		ResultSet rs;
+		String query;
+		Integer id;
 		PreparedStatement pst=null;
+		if(edit){
+			//Case if Edit service
+			id = new Integer(SID);
+		}else{
+			//Case if New service
+			id = 0;
+			try{
+				query = "select max(id) from services;";
+				pst = connection.prepareStatement(query);
+				rs = pst.executeQuery();
+				String rest = rs.getString(1);
+				int maxID = Integer.parseInt(rest);
+				id = ++maxID;
+			}catch(Exception e){
+				JOptionPane.showMessageDialog(null, e);
+			}finally{
+				if(pst != null) {
+					pst.close();}
+			}
+		}	
 		try{
-			String query = "select max(id) from services;";
-			pst = connection.prepareStatement(query);
-			ResultSet rs = pst.executeQuery();
-			String rest = rs.getString(1);
-			int maxID = Integer.parseInt(rest);
-			id = ++maxID;
+			if(edit){
 				
-			
-		}catch(Exception e){
-			JOptionPane.showMessageDialog(null, e);
-		}finally{
-			if(pst != null) {
-			    pst.close();}
-		}
-		try{
-			String query = "INSERT INTO services VALUES ("+id.toString()+", '"+name+"', '"+acc+"', "+price+", "+type+");";
+				query = "UPDATE services SET Name='"+name+"', Account='"+acc+"', price="+price+", type="+type+" WHERE ID="+id.toString()+";";
+			}else{
+				query = "INSERT INTO services VALUES ("+id.toString()+", '"+name+"', '"+acc+"', "+price+", "+type+");";
+			}
 			pst = connection.prepareStatement(query);
 			pst.executeUpdate();
 		}catch(Exception e){
