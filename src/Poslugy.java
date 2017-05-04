@@ -9,10 +9,8 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.util.ArrayList;
 import java.util.List;
-
 import javax.swing.JButton;
 import javax.swing.JDialog;
-import javax.swing.JFrame;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.border.EmptyBorder;
@@ -21,21 +19,20 @@ import javax.swing.table.TableModel;
 import net.proteanit.sql.DbUtils;
 import java.awt.Color;
 import javax.swing.border.BevelBorder;
-import javax.swing.table.DefaultTableModel;
-import javax.swing.table.TableColumn;
-import javax.swing.table.TableColumnModel;
 import javax.swing.ListSelectionModel;
 import javax.swing.ImageIcon;
 import javax.swing.JScrollPane;
-import javax.swing.DebugGraphics;
 import java.awt.Dimension;
 import org.eclipse.wb.swing.FocusTraversalOnArray;
 import java.awt.Component;
-import java.awt.Dialog.ModalExclusionType;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
 
 public class Poslugy extends JDialog { 
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = -6495597805956861531L;
 	private JTable table;
 	Connection connection;
 	private JButton okButton;

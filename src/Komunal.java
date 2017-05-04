@@ -6,20 +6,12 @@ import javax.swing.JLabel;
 import javax.swing.JOptionPane;
 import javax.swing.ImageIcon;
 import javax.swing.JPanel;
-import java.awt.GridLayout;
 import javax.swing.JTable;
-import javax.swing.ListSelectionModel;
-
 import net.proteanit.sql.DbUtils;
 import javax.swing.table.TableModel;
 import java.sql.*;
 import java.util.ArrayList;
 import javax.swing.JScrollPane;
-import javax.swing.BoxLayout;
-import java.awt.CardLayout;
-import java.awt.FlowLayout;
-import java.awt.BorderLayout;
-import net.miginfocom.swing.MigLayout;
 import java.awt.Font;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
@@ -127,7 +119,7 @@ public class Komunal {
 		JLabel lblNewLabel_1 = new JLabel("Місяць");
 		panel_1.add(lblNewLabel_1);
 				
-		JComboBox comboBox_1 = new JComboBox();
+		JComboBox<String> comboBox_1 = new JComboBox<String>();
 		comboBox_1.setSize(50,12);
 		panel_1.add(comboBox_1);
 			

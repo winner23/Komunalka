@@ -1,7 +1,6 @@
 import javax.swing.JPanel;
 import javax.swing.border.EmptyBorder;
 import javax.swing.text.NumberFormatter;
-import javax.swing.text.SimpleAttributeSet;
 import javax.swing.BoxLayout;
 import javax.swing.border.BevelBorder;
 import javax.swing.JLabel;
@@ -17,8 +16,6 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.text.NumberFormat;
-import java.text.SimpleDateFormat;
-import java.util.Locale;
 import javax.swing.JButton;
 import javax.swing.JTextField;
 import javax.swing.JComboBox;
@@ -32,18 +29,22 @@ import java.awt.Component;
 
 public class AddPoslug extends JDialog {
 
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = 2108811307291989545L;
 	private JPanel contentPane;
 	private JTextField textField;
 	private JTextField textField_1;
 	private JFormattedTextField textField_2;
 	private Connection connection;
-	private JComboBox comboBox;
+	private JComboBox<String> comboBox;
 	private boolean edit;
 	private int SID;
 	{SID = -1;}
 
 	public AddPoslug() {
-		SID  = -1;
+		SID  = -1; //For new services
 		edit = false;
 		init();
 		setTitle("Нова Послуга");
@@ -129,8 +130,8 @@ public class AddPoslug extends JDialog {
 		JLabel lblNewLabel_3 = new JLabel("Тип:");
 		panel_2.add(lblNewLabel_3);
 		
-		comboBox = new JComboBox();
-		comboBox.setModel(new DefaultComboBoxModel(new String[] {"1 - лічильник", "2 - фіксовано"}));
+		comboBox = new JComboBox<String>();
+		comboBox.setModel(new DefaultComboBoxModel<String>(new String[] {"1 - лічильник", "2 - фіксовано"}));
 		panel_2.add(comboBox);
 		
 		JPanel panel_3 = new JPanel();
