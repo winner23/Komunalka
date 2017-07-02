@@ -23,8 +23,7 @@ public class Komunal {
 	
 
 	public static void main(String[] args) {
-		EventQueue.invokeLater(new Runnable() {
-			public void run() {
+		EventQueue.invokeLater(() ->{
 				try {
 					Komunal window = new Komunal();
 					window.frame.setLocationRelativeTo(null);
@@ -32,12 +31,12 @@ public class Komunal {
 				} catch (Exception e) {
 					e.printStackTrace();
 				}
-			}
+
 		});
 		
 	}
 	
-	Connection connection = null;
+	private Connection connection = null;
 	public Komunal() {
 		
 		initialize();
@@ -65,18 +64,15 @@ public class Komunal {
 	
 	private ArrayList<String> getYears(){
 		connection = SQLiteConnection.dbConnector();
-		ArrayList<String> res = new ArrayList<String>();
+		ArrayList<String> res = new ArrayList<>();
 		try{
 			String query = "SELECT DISTINCT date FROM data";
-			PreparedStatement pst = connection.prepareStatement(query);
-			ResultSet rs = pst.executeQuery();
-			try {
+
+			try ( ResultSet rs = connection.prepareStatement(query).executeQuery()){
 				  while (rs.next()) {
 				    String date = rs.getString(1);
 				    res.add(date);
 				  }
-				} finally {
-				  rs.close();
 				}
 			return res;
 			
@@ -122,11 +118,20 @@ public class Komunal {
 		JComboBox<String> comboBox_1 = new JComboBox<String>();
 		comboBox_1.setSize(50,12);
 		panel_1.add(comboBox_1);
-			
+
 		JButton btnNewButton_1 = new JButton("Новий місяць");
-		panel_1.add(btnNewButton_1);
 		btnNewButton_1.setIcon(new ImageIcon(Komunal.class.getResource("/com/sun/javafx/scene/web/skin/IncreaseIndent_16x16_JFX.png")));
-		
+		btnNewButton_1.addMouseListener(new MouseAdapter() {
+			@Override
+			public void mouseClicked(MouseEvent me){
+				Month newM = new Month();
+				newM.setSize(530, 366);
+				newM.setLocationRelativeTo(null);
+				newM.setVisible(true);
+			}
+		});
+		panel_1.add(btnNewButton_1);
+
 		JButton btnNewButton_2 = new JButton("Послуги");
 		panel_1.add(btnNewButton_2);
 		btnNewButton_2.addMouseListener(new MouseAdapter() {
@@ -140,16 +145,7 @@ public class Komunal {
 			}
 		});
 		btnNewButton_2.setIcon(new ImageIcon(Komunal.class.getResource("/com/sun/javafx/scene/control/skin/modena/HTMLEditor-Numbered-rtl.png")));
-		btnNewButton_1.addMouseListener(new MouseAdapter() {
-			@Override
-			public void mouseClicked(MouseEvent me){
-				Month newM = new Month();
-				newM.setSize(530, 366);
-				newM.setLocationRelativeTo(null);
-				newM.setVisible(true); 
-			}
-		});
-		
+
 		JPanel panel = new JPanel();
 		panel.setBounds(5, 95, 691, 316);
 		frame.getContentPane().add(panel);		

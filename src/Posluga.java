@@ -1,3 +1,4 @@
+import java.util.Calendar;
 
 public class Posluga {
 	private String name;
@@ -5,15 +6,19 @@ public class Posluga {
 	private float price;
 	private int lastCounter;
 	private int prevCounter;
+	private Calendar date;
 	
-	public Posluga(String name, String rahunok, float price, int lastCounter, int prevCounter) {
-		super();
+	public Posluga(String name, String rahunok, float price, int lastCounter, int prevCounter, Calendar date) {
+
+		this.date = date;
 		this.name = name;
 		this.rahunok = rahunok;
 		this.price = price;
 		this.lastCounter = lastCounter;
 		this.prevCounter = prevCounter;
 	}
+
+	public Calendar getDate() {	return date; }
 
 	protected String getName() {
 		return name;

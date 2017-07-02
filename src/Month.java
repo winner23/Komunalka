@@ -93,14 +93,11 @@ public class Month extends JDialog {
 		panel_1.setLayout(null);
 		
 		JComboBox<String> comboBox_1 = new JComboBox<String>();
-		comboBox_1.addItemListener(new ItemListener() {
-			
-
-			@Override
-			public void itemStateChanged(ItemEvent arg0) {
+		comboBox_1.addItemListener((arg0) -> {
 				String selected = (String) comboBox_1.getSelectedItem();
 				Integer id = getIDbyName(selected);
 				String type="";
+				if(poslug==null) return;
 				for(KOServices el:poslug){
 					if(el.getiD()==id){
 						type=el.getType();
@@ -116,7 +113,6 @@ public class Month extends JDialog {
 					pPokaz_1.setEditable(true);
 				}
 				
-			}
 		});
 		
 		comboBox_1.setBounds(6, 6, 120, 20);
@@ -433,7 +429,9 @@ public class Month extends JDialog {
 		 {
 			@Override
 			public void itemStateChanged(ItemEvent arg0) {
+
 				String selected = (String) comboBox_1.getSelectedItem();
+				if(selected==null) return;
 				Integer id = getIDbyName(selected);
 				String type="";
 				for(KOServices el:poslug){
@@ -505,8 +503,11 @@ public class Month extends JDialog {
 	}
 	
 	private Integer getIDbyName(String name){
+		String trimmedName = name.trim();
+		if(trimmedName.length()<2)
+			return -1;
 		for(KOServices el:poslug){
-			if(el.getName() == name){
+			if(el.getName() == trimmedName){
 				return el.getiD();
 			}
 		}
